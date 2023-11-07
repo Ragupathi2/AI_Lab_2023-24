@@ -49,7 +49,7 @@ symptom(raju,sore_throat).
 
 
 ### Output:
-![image](https://github.com/Ragupathi/AI_Lab_2023-24/assets/130021386/5b618752-e7d3-4ebc-93c7-b1801f98f31d)
+![image](https://github.com/Sudhindev/AI_Lab_2023-24/assets/130021386/5b618752-e7d3-4ebc-93c7-b1801f98f31d)
 
 
 
