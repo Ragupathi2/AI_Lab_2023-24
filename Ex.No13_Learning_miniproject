@@ -1,76 +1,77 @@
-# Ex.No: 10 Learning – Use Supervised Learning  
-### DATE:                                                                            
-### REGISTER NUMBER : 
+# Ex.No: 13 Learning - Use Supervised Learning
+### DATE:28/10.2023
+### REGISTER NUMBER: 212221040135
 ### AIM: 
-To write a program to train the classifier for -----------------.
+To write the program to train the classifier for Simple delivery Robot Planner.
 ###  Algorithm:
-
+Step 1: Determine the robot's current location in the warehouse. <br>
+Step 2: Identify the goal location where the package needs to be delivered. <br>
+Step 3: Create a map of the warehouse layout, marking obstacles and paths. <br>
+Step 4: Use the A* search algorithm to find the optimal path from the robot's current location to the goal while avoiding obstacles. <br>
+Step 5: Break the path into individual movement steps. <br>
+Step 6: Check for the next step in the path and move the robot accordingly. <br>
+Step 7: Continuously update the robot's location. <br>
+Step 8: If the robot encounters an obstacle, reevaluate the path to find an alternative route. <br>
+Step 9: Repeat steps 6-8 until the robot reaches the goal location. <br>
+Step 10: Once the robot reaches the goal, complete the package delivery. <br>
 ### Program:
-def get_test_image_and_annotation_arrays():
-	'''
-	Unpacks the test dataset and returns
-	the input images and segmentation masks
-	'''
+```
+(define (domain delivery_domain)
+  (:requirements :strips)
+  (:predicates
+    (at ?robot ?location)
+    (has-package ?robot ?package)
+    (at-goal ?package ?location)
+    (clear ?location)
+    (free ?robot)
+    (package-at ?package ?location)
+  )
+  
+  (:action move
+    :parameters (?robot ?from ?to)
+    :precondition (and (at ?robot ?from) (clear ?to) (free ?robot))
+    :effect (and (at ?robot ?to) (clear ?from))
+  )
 
-	ds = test_ds.unbatch()
-	ds = ds.batch(info.splits['test'].num_examples)
+  (:action pick-up
+    :parameters (?robot ?package ?location)
+    :precondition (and (at ?robot ?location) (package-at ?package ?location) (free ?robot))
+    :effect (and (has-package ?robot ?package) (at ?robot ?location) (not (package-at ?package ?location)))
+  )
 
-	images = []
-	y_true_segments = []
+  (:action drop-off
+    :parameters (?robot ?package ?location)
+    :precondition (and (at ?robot ?location) (has-package ?robot ?package) (at-goal ?package ?location) (free ?robot))
+    :effect (and (package-at ?package ?location) (clear ?location) (free ?robot) (not (has-package ?robot ?package)))
+  )
+)
 
-	for image, annotation in ds.take(1):
-		y_true_segments = annotation.numpy()
-		images = image.numpy()
+```
+### Input 
+```
+(define (problem delivery_problem)
+  (:domain delivery_domain)
+  (:objects
+    robot1
+    package1
+    locationA
+    locationB
+  )
+  (:init
+    (at robot1 locationA)
+    (package-at package1 locationA)
+    (at-goal package1 locationB)
+    (clear locationB)
+    (clear locationA)
+    (free robot1)
+  )
+  (:goal (and (package-at package1 locationB) (clear locationB)))
+)
 
-	y_true_segments = y_true_segments[:(
-		info.splits['test'].num_examples - (info.splits['test']
-											.num_examples % BATCH_SIZE))]
-	images = images[:(info.splits['test'].num_examples -
-					(info.splits['test'].num_examples % BATCH_SIZE))]
+```
+### Output/Plan:
 
-	return images, y_true_segments
-
-
-y_true_images, y_true_segments = get_test_image_and_annotation_arrays()
-
-integer_slider = 2574
-img = np.reshape(y_true_images[integer_slider], (1, width, height, 3))
-y_pred_mask = model.predict(img)
-y_pred_mask = create_mask(y_pred_mask)
-y_pred_mask.shape
-
-
-def display_prediction(display_list, display_string):
-	plt.figure(figsize=(15, 15))
-	title = ['Input Image', 'True Mask', 'Predicted Mask']
-
-	for i in range(len(display_list)):
-		plt.subplot(1, len(display_list), i+1)
-		plt.title(title[i])
-		plt.xticks([])
-		plt.yticks([])
-		if i == 1:
-			plt.xlabel(display_string, fontsize=12)
-		plt.imshow(keras.preprocessing.image.array_to_img(display_list[i]))
-	plt.show()
-
-
-iou, dice_score = compute_metrics(
-	y_true_segments[integer_slider], y_pred_mask.numpy())
-display_list = [y_true_images[integer_slider],
-				y_true_segments[integer_slider], y_pred_mask]
-
-display_string_list = ["{}: IOU: {} Dice Score: {}".format(class_names[idx],
-														i, dc) for idx, (i, dc) in
-					enumerate(zip(np.round(iou, 4), np.round(dice_score, 4)))]
-display_string = "\n\n".join(display_string_list)
-
-
-# showing predictions with metrics
-display_prediction(display_list, display_string)
-
-### Output:
-
+![image](https://github.com/HariHaranLK/AI_Lab_2023-24/assets/132996089/68eda73c-9e8d-4c9f-be6e-25d8be253dab)
 
 ### Result:
 Thus the system was trained successfully and the prediction was carried out.
